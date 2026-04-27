@@ -3,10 +3,9 @@
 ## Image publiée
 
 - **Nom de l'image** : `ghcr.io/nayimjr08/projet-cicd`
-- **Tag principal** : À compléter — par exemple `sha-a1b2c3d` et `latest`
-- **Digest** : À compléter — par exemple `sha256:abcdef1234567890...`
-- **Lien GHCR** : `https://github.com/nayimjr08/projet-cicd/pkgs/container/projet-cicd`
-- **Capture** : À compléter (capture d'écran de la page GHCR montrant l'image, les tags et le digest)
+- **Tag principal** : `sha-23a01d2` et `latest`
+- **Digest** : visible dans le résumé (GITHUB_STEP_SUMMARY) du workflow `02-publish-ghcr.yml` — format `sha256:...`
+- **Lien GHCR** : https://github.com/nayimjr08/projet-cicd/pkgs/container/projet-cicd
 
 ## Workflow de publication
 
@@ -18,11 +17,11 @@ L'image est publiée automatiquement par le workflow `02-publish-ghcr.yml` à ch
 
 ## Explication : tag et digest
 
-Le **tag** est une étiquette lisible associée à une image (par exemple `latest`, `sha-a1b2c3d`, `production-simulee`). Il est mutable : on peut re-taguer une image ou déplacer un tag vers une autre version. Le tag `latest` par exemple est mis à jour à chaque publication.
+Le **tag** est une étiquette lisible associée à une image (par exemple `latest`, `sha-23a01d2`, `production-simulee`). Il est mutable : on peut re-taguer une image ou déplacer un tag vers une autre version. Le tag `latest` par exemple est mis à jour à chaque publication.
 
 Le **digest** est un hash SHA256 calculé sur le contenu exact de l'image. Il est immuable : si un seul octet change, le digest change. C'est l'identifiant unique et fiable de l'artefact.
 
 Ces deux mécanismes sont complémentaires pour la traçabilité et le rollback :
-- Le **tag** permet de nommer et retrouver facilement une version (on promeut `sha-a1b2c3d` en production) ;
+- Le **tag** permet de nommer et retrouver facilement une version (on promeut `sha-23a01d2` en production) ;
 - Le **digest** garantit que l'artefact promu est exactement celui qui a été testé, sans altération possible ;
 - En cas de problème, on peut revenir à une version précédente en re-promouvant une image identifiée par son digest, avec la certitude que c'est le même binaire.

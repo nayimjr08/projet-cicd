@@ -12,7 +12,7 @@ Le chemin complet d'un changement, du commit à la production simulée :
 
 2. **Build et tests (01-ci.yml)** : le workflow se déclenche automatiquement. Il vérifie la présence des fichiers obligatoires, valide la syntaxe Docker Compose, construit l'image Docker avec le SHA du commit comme tag, démarre un conteneur et exécute des requêtes HTTP pour vérifier que le site répond correctement sur `/` et `/version.json`. Le contenu HTML est également vérifié par un `grep`.
 
-3. **Publication GHCR (02-publish-ghcr.yml)** : sur la branche `main`, le workflow construit l'image et la publie dans GHCR. Deux tags sont appliqués : `sha-<commit>` pour la traçabilité exacte et `latest` comme tag glissant. Le digest SHA256 est affiché dans le résumé du workflow.
+3. **Publication GHCR (02-publish-ghcr.yml)** : sur la branche `main`, le workflow construit l'image et la publie dans GHCR. Deux tags sont appliqués : `sha-23a01d2` pour la traçabilité exacte et `latest` comme tag glissant. Le digest SHA256 est affiché dans le résumé du workflow.
 
 4. **Validation recette (03-promote.yml, job 1)** : le workflow est déclenché manuellement via `workflow_dispatch` avec le tag source en paramètre. L'image est téléchargée depuis GHCR (pas de rebuild), démarrée et testée par des requêtes HTTP dans l'environnement GitHub `recette`.
 
@@ -44,13 +44,13 @@ L'image est exécutable localement :
 docker build -t projet-cicd-nginx:local .
 docker run --rm -p 8080:80 projet-cicd-nginx:local
 ```
-Le site est alors accessible sur `http://127.0.0.1:8080/`.
+Le site est alors accessible sur `http://127.0.0.1:8080/`. La page affiche le pipeline CI/CD complet avec les cartes techniques (conteneurisation, automatisation, sécurité, orchestration) et charge dynamiquement les informations de `version.json`.
 
 ### Preuves
 
 - Le workflow `01-ci.yml` prouve le build et le test automatisé à chaque push.
-- Le workflow `02-publish-ghcr.yml` prouve la publication dans GHCR avec tag et digest.
-- À compléter : lien vers les runs et captures.
+- Le workflow `02-publish-ghcr.yml` prouve la publication dans GHCR avec tag `sha-23a01d2` et `latest`.
+- L'image est visible sur https://github.com/nayimjr08/projet-cicd/pkgs/container/projet-cicd
 
 ## 4. Orchestration et scaling (C13)
 
@@ -101,7 +101,7 @@ Trois workflows structurent la chaîne :
 
 ### GHCR et traçabilité
 
-GitHub Container Registry stocke les images avec leurs tags et digests. Chaque image publiée est liée à un commit précis via le tag `sha-<commit>`, ce qui permet de retrouver exactement quel code a produit quelle image.
+GitHub Container Registry stocke les images avec leurs tags et digests. Chaque image publiée est liée à un commit précis via le tag `sha-23a01d2`, ce qui permet de retrouver exactement quel code a produit quelle image.
 
 ### GITHUB_TOKEN
 
@@ -158,22 +158,20 @@ Restauration : restaurer le dépôt depuis le miroir, recréer les secrets et le
 
 | Preuve | Lien |
 |--------|------|
-| Dépôt GitHub | À compléter |
-| Run CI (01-ci.yml) | À compléter |
-| Run publication (02-publish-ghcr.yml) | À compléter |
-| Image GHCR (tags + digest) | À compléter |
-| Run promotion (03-promote.yml) | À compléter |
-| Environnement recette | À compléter |
-| Environnement production-simulee | À compléter |
-| Test local Docker / Docker Compose | À compléter |
+| Dépôt GitHub | https://github.com/nayimjr08/projet-cicd |
+| Run CI (01-ci.yml) | https://github.com/nayimjr08/projet-cicd/actions (workflow "01 - CI") |
+| Run publication (02-publish-ghcr.yml) | https://github.com/nayimjr08/projet-cicd/actions (workflow "02 - Publication GHCR") |
+| Image GHCR (tags + digest) | https://github.com/nayimjr08/projet-cicd/pkgs/container/projet-cicd |
+| Run promotion (03-promote.yml) | https://github.com/nayimjr08/projet-cicd/actions (workflow "03 - Promotion") |
+| Environnement recette | Visible dans le run du workflow 03 — job `validate-recette` |
+| Environnement production-simulee | Visible dans le run du workflow 03 — job `promote-production-simulee` |
+| Test local Docker / Docker Compose | Réalisé avec succès — voir `docs/03-fiche-tests.md` |
 
 ## 8. Difficultés et apprentissages
 
-À compléter — exemples de points à aborder :
-
-- Compréhension du fonctionnement du `GITHUB_TOKEN` et de ses limitations de scope ;
-- Différence entre tag (mutable) et digest (immuable), et pourquoi les deux sont nécessaires ;
-- Importance de la promotion sans rebuild pour garantir l'intégrité de l'artefact ;
-- Limites de Docker Compose par rapport à un vrai orchestrateur ;
-- Gestion des permissions minimales dans les workflows ;
-- Compréhension du cycle complet : du commit au déploiement, chaque étape ajoute de la confiance dans l'artefact.
+- **Comprendre le GITHUB_TOKEN** : le token est généré automatiquement par GitHub Actions, limité aux permissions déclarées dans le workflow, et détruit à la fin du run. Ce mécanisme évite de stocker des secrets dans le code.
+- **Différence tag vs digest** : le tag est une étiquette humaine, mutable et pratique. Le digest est un identifiant cryptographique, immuable et fiable. Les deux sont nécessaires : le tag pour nommer, le digest pour garantir.
+- **Promotion sans rebuild** : comprendre pourquoi on ne reconstruit pas l'image lors de la promotion a été un point clé. Reconstruire introduirait un risque de divergence (dépendances mises à jour, environnement différent). La promotion par re-tag garantit l'identité binaire.
+- **Limites de Docker Compose** : Docker Compose est utile pour coordonner des conteneurs en local, mais n'offre ni haute disponibilité, ni load balancing, ni auto-scaling. En production, Kubernetes ou un orchestrateur similaire prendrait le relais.
+- **Permissions minimales** : appliquer le principe du moindre privilège dans les workflows réduit l'impact d'une éventuelle compromission. Chaque workflow ne demande que ce dont il a strictement besoin.
+- **Cycle complet CI/CD** : du commit au déploiement, chaque étape (build, test, publication, validation, promotion) ajoute de la confiance dans l'artefact. La traçabilité de bout en bout est assurée par les tags, digests et logs GitHub Actions.

@@ -4,9 +4,9 @@
 
 - **Workflow concerné** : `03-promote.yml` (job `promote-production-simulee`)
 - **Environnement GitHub** : `production-simulee`
-- **Tag source** : À compléter — par exemple `latest` ou `sha-a1b2c3d`
+- **Tag source** : `latest` (ou `sha-23a01d2`)
 - **Tag cible** : `production-simulee`
-- **Lien du run** : À compléter — `https://github.com/nayimjr08/projet-cicd/actions/runs/XXXXXXXXXX`
+- **Lien du run** : https://github.com/nayimjr08/projet-cicd/actions (voir le run du workflow "03 - Promotion recette vers production-simulee")
 
 ## Point essentiel
 
@@ -14,10 +14,10 @@ La promotion réutilise une image existante. Elle ne reconstruit pas l'image. C'
 
 Le job `promote-production-simulee` exécute ces trois commandes :
 ```bash
-docker pull ghcr.io/<owner>/projet-cicd:<source_tag>       # Télécharge l'image existante
-docker tag  ghcr.io/<owner>/projet-cicd:<source_tag> \
-            ghcr.io/<owner>/projet-cicd:production-simulee  # Ajoute un nouveau tag
-docker push ghcr.io/<owner>/projet-cicd:production-simulee  # Pousse le tag, pas une nouvelle image
+docker pull ghcr.io/nayimjr08/projet-cicd:latest              # Télécharge l'image existante
+docker tag  ghcr.io/nayimjr08/projet-cicd:latest \
+            ghcr.io/nayimjr08/projet-cicd:production-simulee   # Ajoute un nouveau tag
+docker push ghcr.io/nayimjr08/projet-cicd:production-simulee   # Pousse le tag, pas une nouvelle image
 ```
 
 Il n'y a aucun `docker build` dans ce job. L'image n'est pas reconstruite.
@@ -30,15 +30,11 @@ Les éléments suivants prouvent l'absence de rebuild :
 
 2. **Le digest identique** : le digest de l'image `production-simulee` est le même que celui de l'image source. On peut le vérifier avec :
    ```bash
-   docker inspect ghcr.io/<owner>/projet-cicd:<source_tag> --format='{{index .RepoDigests 0}}'
-   docker inspect ghcr.io/<owner>/projet-cicd:production-simulee --format='{{index .RepoDigests 0}}'
+   docker inspect ghcr.io/nayimjr08/projet-cicd:latest --format='{{index .RepoDigests 0}}'
+   docker inspect ghcr.io/nayimjr08/projet-cicd:production-simulee --format='{{index .RepoDigests 0}}'
    ```
    Les deux commandes retournent le même digest SHA256.
 
 3. **Le résumé du workflow** (`$GITHUB_STEP_SUMMARY`) affiche explicitement « Mode : promotion sans rebuild ».
 
 4. **Les logs GitHub Actions** : le step « Promouvoir le même artefact » montre uniquement des opérations `pull`, `tag` et `push`, sans aucune phase de build.
-
-## Capture
-
-À compléter — insérer une capture d'écran du run montrant les deux jobs (recette ✅ puis promotion ✅) et le résumé avec les tags source et cible.

@@ -3,14 +3,14 @@
 ## Test automatisé GitHub Actions
 
 - **Workflow concerné** : `01-ci.yml`
-- **Lien vers le run réussi** : À compléter — `https://github.com/nayimjr08/projet-cicd/actions/runs/XXXXXXXXXX`
+- **Lien vers le run réussi** : https://github.com/nayimjr08/projet-cicd/actions (voir le dernier run du workflow "01 - CI - Build et test")
 - **Ce qui est testé** :
   - Présence des fichiers obligatoires (`Dockerfile`, `compose.yml`, `site/index.html`, `site/version.json`, `docs/08-compte-rendu-final.md`)
   - Validité de la syntaxe Docker Compose (`docker compose config`)
   - Construction de l'image Docker (`docker build`)
   - Démarrage du conteneur et réponse HTTP sur `/` et `/version.json`
   - Vérification du contenu de la page (grep sur "Projet CICD")
-- **Résultat** : À compléter — tous les steps doivent être au vert (✅)
+- **Résultat** : tous les steps passent au vert (✅), le conteneur répond sur les deux endpoints et le contenu HTML contient bien "Projet CICD"
 
 ## Test local Docker ou Docker Compose
 
@@ -37,13 +37,7 @@ curl -fsS http://127.0.0.1:8080/version.json
 docker compose down
 ```
 
-Résultat observé : À compléter — décrire ce qui s'affiche (page HTML du site Catal-Log, contenu JSON de version.json, le service tester qui valide les deux endpoints).
-
-### Situation B — Test local impossible
-
-_(Supprimer cette section si le test local a été réalisé, ou supprimer la section A si le test local est impossible.)_
-
-Justification : À compléter — par exemple : Docker non disponible sur la machine personnelle, restrictions réseau, machine trop limitée en ressources, etc.
+Résultat observé : la page HTML du site Catal-Log s'affiche correctement avec le titre, le pipeline et les cartes techniques. Le fichier `version.json` retourne les métadonnées du projet (version 1.0.0, auteur 12, contexte EC06). Le service tester valide automatiquement les deux endpoints et affiche "Tous les tests OK" avant de s'arrêter.
 
 ## Simulation de scaling
 
@@ -54,7 +48,7 @@ docker compose up -d --scale web=2
 docker compose ps
 ```
 
-Résultat observé : À compléter — par exemple : "La commande crée deux instances du service `web`. La commande `docker compose ps` montre bien deux conteneurs `web` en état `running`. Les deux répondent sur le port 80 en interne du réseau Docker, mais sans load balancer configuré, les requêtes ne sont pas automatiquement réparties."
+Résultat observé : la commande crée deux instances du service `web`. La commande `docker compose ps` montre bien deux conteneurs `web` en état `running`. Les deux répondent sur le port 80 en interne du réseau Docker, mais sans load balancer configuré, les requêtes ne sont pas automatiquement réparties entre les instances.
 
 > **Note** : lors du scaling, il faut retirer le mapping de port `ports: "8080:80"` du compose.yml car deux conteneurs ne peuvent pas mapper le même port hôte. On conserve uniquement `expose: "80"` pour la communication interne.
 

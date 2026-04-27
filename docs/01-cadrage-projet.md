@@ -28,8 +28,8 @@ Mettre en place une chaîne CI/CD permettant de construire, tester, publier et p
 - `latest` : tag glissant mis à jour à chaque publication depuis la branche `main` ;
 - `production-simulee` : tag appliqué manuellement lors de la promotion, sans rebuild.
 
-**Environnement local** : À compléter — indiquer si Docker Desktop / Docker Engine est installé localement, si les tests `docker compose up --build` ont pu être réalisés, ou justifier l'impossibilité.
+**Environnement local** : Docker Desktop est installé sur la machine personnelle. Les tests `docker compose up --build` ont été réalisés localement avec succès avant le push. Le site est accessible sur `http://127.0.0.1:8080/` et les deux endpoints (`/` et `/version.json`) répondent correctement.
 
-**VM personnelle** : À compléter — indiquer si une VM a été utilisée pour les tests locaux, ou justifier la non-utilisation (par exemple : Docker disponible directement sur la machine hôte, donc pas de nécessité de VM intermédiaire).
+**VM personnelle** : aucune VM intermédiaire n'a été utilisée. Docker étant disponible directement sur la machine hôte, il n'y avait pas de nécessité d'ajouter une couche de virtualisation supplémentaire. Les runners GitHub Actions (Ubuntu) assurent l'exécution dans un environnement Linux standardisé.
 
 **Branche de travail** : le développement se fait directement sur `main` pour ce projet pédagogique. En production réelle, une stratégie de branching (GitFlow, trunk-based) serait mise en place.
