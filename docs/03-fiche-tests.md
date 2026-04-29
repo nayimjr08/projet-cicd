@@ -48,9 +48,9 @@ docker compose up -d --scale web=2
 docker compose ps
 ```
 
-Résultat observé : la commande crée deux instances du service `web`. La commande `docker compose ps` montre bien deux conteneurs `web` en état `running`. Les deux répondent sur le port 80 en interne du réseau Docker, mais sans load balancer configuré, les requêtes ne sont pas automatiquement réparties entre les instances.
+Résultat observé : Le lancement de la deuxième instance a échoué avec l'erreur Bind for 0.0.0.0:8080 failed: port is already allocated.
 
-> **Note** : lors du scaling, il faut retirer le mapping de port `ports: "8080:80"` du compose.yml car deux conteneurs ne peuvent pas mapper le même port hôte. On conserve uniquement `expose: "80"` pour la communication interne.
+Analyse : Ce résultat est cohérent avec la configuration actuelle car le port 8080 est mappé en "dur" sur l'hôte. Pour valider le scaling, il faudrait modifier le compose.yml pour supprimer le mappage de port ou utiliser un reverse-proxy. Cela confirme la limite technique identifiée dans la section suivante.
 
 ## Tests complémentaires
 
@@ -59,7 +59,7 @@ En complément des tests de base, les vérifications suivantes ont été réalis
 | Test | Commande / méthode | Résultat attendu |
 |------|-------------------|------------------|
 | Healthcheck Docker | `docker inspect --format='{{.State.Health.Status}}' <container>` | `healthy` |
-| Taille de l'image | `docker images projet-cicd-nginx:local` | ~40-50 Mo (Alpine) |
+| Taille de l'image | `docker images projet-cicd-nginx:local` | 73.7MB (Alpine) |
 | Syntaxe Compose | `docker compose config` | Pas d'erreur |
 | Contenu HTML | `curl -s http://127.0.0.1:8080/ \| grep "Catal-Log"` | Chaîne trouvée |
 
